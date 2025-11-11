@@ -1,25 +1,25 @@
-#Add in /homeassistant/configuration.yaml
-#input_boolean:
-# cycle_active:
-#   name: Cycle Actif
-#   initial: off
-#   icon: mdi:repeat
+# Add in /homeassistant/configuration.yaml
+# input_boolean:
+#   cycle_active:
+#     name: Cycle Active
+#     initial: off
+#     icon: mdi:repeat
 
 blueprint:
   name: Device On/Off Cycle with Timer
-  description: Automatisation qui active un appareil pendant un certain nombre de minutes à intervalles réguliers dans une plage horaire définie.
+  description: Automation that turns a device on for a set number of minutes at regular intervals within a defined time window.
   domain: automation
   input:
     device_entity:
-      name: Appareil ou Entité
-      description: L'appareil ou l'entité à activer/désactiver.
+      name: Device or Entity
+      description: The device or entity to turn on/off.
       selector:
         entity:
           domain: switch
 
     interval_minutes:
-      name: Intervalle (minutes)
-      description: Nombre de minutes entre chaque activation de l'appareil.
+      name: Interval (minutes)
+      description: Number of minutes between each device activation.
       default: 30
       selector:
         number:
@@ -28,8 +28,8 @@ blueprint:
           unit_of_measurement: minutes
 
     on_duration:
-      name: Durée d'activation (minutes)
-      description: Durée pendant laquelle l'appareil reste activé.
+      name: On duration (minutes)
+      description: How long the device stays on.
       default: 30
       selector:
         number:
@@ -38,15 +38,15 @@ blueprint:
           unit_of_measurement: minutes
 
     start_time:
-      name: Heure de début
-      description: Heure de début du cycle d'activation/désactivation.
+      name: Start time
+      description: Start time of the on/off cycle.
       default: "08:00:00"
       selector:
         time:
 
     end_time:
-      name: Heure de fin
-      description: Heure de fin du cycle d'activation/désactivation.
+      name: End time
+      description: End time of the on/off cycle.
       default: "20:00:00"
       selector:
         time:
@@ -55,22 +55,21 @@ mode: restart
 
 trigger:
   - platform: time_pattern
-    minutes: "/1" # Déclenche toutes les minutes
+    minutes: "/1"   # Fires every minute
 
 condition:
   - condition: template
     value_template: >
-      {{ states('sensor.time') >= (states('input_datetime.start_time') | default('08:00:00')) and states('sensor.time') <= (states('input_datetime.end_time') | default('20:00:00')) }}
-
+      {{ states('sensor.time') >= (states('input_datetime.start_time') | default('08:00:00')) 
+         and states('sensor.time') <= (states('input_datetime.end_time') | default('20:00:00')) }}
   - condition: state
     entity_id: input_boolean.cycle_active
-    state: "off" # Vérifie que la boucle n'est pas déjà active
+    state: "off"     # Ensures the loop is not already running
 
 action:
   - service: input_boolean.turn_on
     target:
-      entity_id: input_boolean.cycle_active # Active le cycle
-
+      entity_id: input_boolean.cycle_active   # Marks the cycle as active
   - service: switch.turn_on
     target:
       entity_id: !input device_entity
@@ -87,4 +86,4 @@ action:
 
   - service: input_boolean.turn_off
     target:
-      entity_id: input_boolean.cycle_active # Désactive le cycle à la fin de l'action
+      entity_id: input_boolean.cycle_active   # Marks the cycle as finished
