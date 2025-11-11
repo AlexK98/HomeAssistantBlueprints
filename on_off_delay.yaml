@@ -62,6 +62,7 @@ condition:
     value_template: >
       {{ states('sensor.time') >= (states('input_datetime.start_time') | default('08:00:00')) 
          and states('sensor.time') <= (states('input_datetime.end_time') | default('20:00:00')) }}
+
   - condition: state
     entity_id: input_boolean.cycle_active
     state: "off"     # Ensures the loop is not already running
@@ -70,6 +71,7 @@ action:
   - service: input_boolean.turn_on
     target:
       entity_id: input_boolean.cycle_active   # Marks the cycle as active
+
   - service: switch.turn_on
     target:
       entity_id: !input device_entity
